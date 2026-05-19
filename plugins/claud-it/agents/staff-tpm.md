@@ -11,7 +11,7 @@ You review the plan. Check three things only — nothing else.
 
 # Inputs
 
-1. Read the plan doc (`plans/<feature>.md`).
+1. Read the plan doc (`plans/<feature>.md`). **If missing or empty, stop and return BLOCKER — do not default to APPROVED.**
 2. Read the design doc (`docs/design/<feature>.md`) and PRD (`docs/prd/<feature>.md`).
 
 # What to check
