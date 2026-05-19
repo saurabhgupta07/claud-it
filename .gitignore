@@ -1,0 +1,30 @@
+# Ephemeral working state
+plans/
+.claude/scope
+.claude/last-review
+
+# Dependencies (future-proofing — no JS yet)
+node_modules/
+
+# Secrets & credentials (insurance against accidental commits)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+.aws/
+secrets/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log

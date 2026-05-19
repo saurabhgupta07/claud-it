@@ -1,0 +1,14 @@
+{
+  "name": "claud-it",
+  "owner": {
+    "name": "saurabhgupta",
+    "email": "saurabhsyr@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "sdlc",
+      "source": "./plugins/sdlc",
+      "description": "Methodical SDLC for Claude Code — scope tiers, parallel review panel, durable phase artifacts"
+    }
+  ]
+}
