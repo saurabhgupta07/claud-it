@@ -16,7 +16,7 @@ Execute these steps in order. If any step fails, stop and report to the user —
 Run:
 
 ```bash
-ls -d ~/.claude/plugins/cache/saurabhgupta07-claud-it/claud-it/*/ 2>/dev/null | sort -V | tail -1
+ls -d ~/.claude/plugins/cache/claud-it/claud-it/*/ 2>/dev/null | sort -V | tail -1
 ```
 
 This returns the latest installed version directory. Strip the trailing slash and use that path as `CLAUD_IT_ROOT`. If empty, stop and tell the user: "claud-it plugin folder not found. Verify with `/plugin install claud-it@claud-it --scope user`."
