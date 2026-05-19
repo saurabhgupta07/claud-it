@@ -15,7 +15,7 @@
 
 ```bash
 # In Claude Code
-/plugin marketplace add saurabhgupta/claud-it
+/plugin marketplace add saurabhgupta07/claud-it
 /plugin install sdlc@claud-it
 ```
 
