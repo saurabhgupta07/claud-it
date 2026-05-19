@@ -120,7 +120,7 @@ After Phase 4: full SDLC workflow runnable end-to-end.
 
 ---
 
-## Phase 5 — Hooks
+## Phase 5 — Hooks ✅ 2026-05-19
 
 **Estimate**: ~30 min. Three shell scripts, no LLM.
 
@@ -196,3 +196,4 @@ After Phase 7: Cirrus-specific rules in place; agents reviewing Cirrus code know
 | 2026-05-18 | 2 | Constitution written: goal + operating principle + 6 sections (scope, escalation, override, artifacts, models, findings). 102 lines, 513 words. |
 | 2026-05-19 | 3 | All 7 agents written: code-quality-reviewer, code-reviewer, security-engineer, staff-engineer, staff-tpm (tightened scope), principal-ux, integ-test-author (two-mode: write tests OR propose framework plan). Two SUGGESTION fixes folded in mid-phase. |
 | 2026-05-19 | 4 | All 6 skills landed: scope (gatekeeper), review-pr (3-reviewer parallel), requirements (PM), design (designer + 2-3 reviewers), plan (breakdown + tpm), ship (final gate + integ tests). Each through code-reviewer + revise + commit + push loop. Skills reference CLAUDE.md instead of duplicating policy. |
+| 2026-05-19 | 5 | Three hooks + lib/common.sh + settings template. pre-commit-checks (secrets + typecheck + lint), block-without-review (scope + marker hash + blockers count), pre-push-confirm-main (force-push detection). CLAUD_IT_BYPASS=1 escape hatch. Three BLOCKERs caught and fixed pre-commit (subcommand matching, $HOME expansion, jq-missing). |

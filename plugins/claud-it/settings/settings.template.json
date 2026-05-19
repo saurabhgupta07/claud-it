@@ -1,0 +1,21 @@
+{
+  "//": "Template hooks config for the claud-it plugin. Merge or copy into ~/.claude/settings.json or the project's .claude/settings.json.",
+  "//how": "The Phase 6 install.sh will substitute <CLAUD_IT_ROOT> with the absolute path on each machine. Until then, replace <CLAUD_IT_ROOT> manually with where you cloned claud-it (e.g., /Users/you/code/claud-it).",
+  "//bypass": "All hooks honor CLAUD_IT_BYPASS=1 as an emergency escape (e.g., recovery from a corrupted .claude/scope).",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "command": "<CLAUD_IT_ROOT>/plugins/claud-it/hooks/pre-commit-checks.sh"
+      },
+      {
+        "matcher": "Bash",
+        "command": "<CLAUD_IT_ROOT>/plugins/claud-it/hooks/block-without-review.sh"
+      },
+      {
+        "matcher": "Bash",
+        "command": "<CLAUD_IT_ROOT>/plugins/claud-it/hooks/pre-push-confirm-main.sh"
+      }
+    ]
+  }
+}
