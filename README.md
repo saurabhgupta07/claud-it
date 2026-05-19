@@ -16,19 +16,19 @@
 ```bash
 # In Claude Code
 /plugin marketplace add saurabhgupta07/claud-it
-/plugin install sdlc@claud-it
+/plugin install claud-it@claud-it
 ```
 
 ## Quick start
 
 ```
-/sdlc:scope feature                    # declare scope for this change
-/sdlc:requirements "add reminders"     # PM gathers requirements → docs/prd/
-/sdlc:design                           # designer drafts → reviewers critique → docs/design/
-/sdlc:plan                             # task breakdown + TPM review → plans/
+/claud-it:scope feature                    # declare scope for this change
+/claud-it:requirements "add reminders"     # PM gathers requirements → docs/prd/
+/claud-it:design                           # designer drafts → reviewers critique → docs/design/
+/claud-it:plan                             # task breakdown + TPM review → plans/
 # ... implement ...
-/sdlc:review-pr                        # parallel audit: code + quality + security
-/sdlc:ship                             # final gate: integ tests + sign-off
+/claud-it:review-pr                        # parallel audit: code + quality + security
+/claud-it:ship                             # final gate: integ tests + sign-off
 ```
 
 ## Roster
@@ -57,7 +57,7 @@ claud-it/
 ├── docs/
 │   └── build-plan.md
 └── plugins/
-    └── sdlc/
+    └── claud-it/
         ├── plugin.json
         ├── CLAUDE.md                   (stub today, full in Phase 2)
         ├── skills/                     (Phase 4)

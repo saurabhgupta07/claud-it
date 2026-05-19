@@ -22,7 +22,7 @@ Built for solo use first; portable to teams later.
 | Repo name | `claud-it` |
 | Local path | `~/code/claud-it/` |
 | Install pattern | Plugin marketplace (`/plugin marketplace add`) |
-| Plugin namespace | `/sdlc:*` |
+| Plugin namespace | `/claud-it:*` |
 | Scope tiers | tweak / patch / feature / system |
 | Auto-escalation triggers | auth, secrets, migrations, IAM, billing, infra |
 | Phase artifacts | committed in project's `docs/{prd,design,adr,ux}/` |
@@ -40,8 +40,8 @@ Built for solo use first; portable to teams later.
 - [x] `~/code/claud-it/` created
 - [x] `README.md` with philosophy + install + roster
 - [x] `.claude-plugin/marketplace.json`
-- [x] `plugins/sdlc/plugin.json`
-- [x] `plugins/sdlc/CLAUDE.md` (stub, full content in Phase 2)
+- [x] `plugins/claud-it/plugin.json`
+- [x] `plugins/claud-it/CLAUDE.md` (stub, full content in Phase 2)
 - [x] `docs/build-plan.md` (this file)
 - [x] `.gitignore`
 - [x] `git init`, first commit
@@ -50,7 +50,7 @@ After Phase 1: `/plugin marketplace add` works against this repo. Nothing wired 
 
 ---
 
-## Phase 2 — Constitution (`plugins/sdlc/CLAUDE.md`)
+## Phase 2 — Constitution (`plugins/claud-it/CLAUDE.md`)
 
 **Estimate**: 45 min. **Highest-leverage hour** of the project.
 
@@ -59,7 +59,7 @@ Sections to write:
 1. **Philosophy** — methodical-not-slow framing; parallel review = ~90s wall-clock; why discipline has no cost in this paradigm
 2. **Scope tiers** — tweak / patch / feature / system definitions table with file-count heuristics
 3. **Auto-escalation rules** — non-negotiable triggers (auth / secrets / migrations / IAM / billing / infra)
-4. **Override mechanism** — `/sdlc:scope <tier>` and `/sdlc:scope no-ceremony`
+4. **Override mechanism** — `/claud-it:scope <tier>` and `/claud-it:scope no-ceremony`
 5. **Artifact conventions** — `docs/prd/`, `docs/design/`, `docs/adr/`, `docs/ux/` committed; `plans/` and `.claude/scope` gitignored
 6. **Model assignment table** — Opus for high-stakes, Sonnet for high-frequency
 7. **Gating policy** — BLOCKER / WARNING / SUGGESTION semantics; tier × severity matrix
@@ -71,7 +71,7 @@ After Phase 2: every downstream skill/agent has a constitution to reference.
 
 ## Phase 3 — Agent fleet
 
-**Estimate**: ~2 hours. Order matters — first three unblock `/sdlc:review-pr`.
+**Estimate**: ~2 hours. Order matters — first three unblock `/claud-it:review-pr`.
 
 | Order | Agent | Model | Tools | Phase used in |
 |---|---|---|---|---|
@@ -105,16 +105,16 @@ After Phase 3: 7 standalone reviewer/author agents, each spawnable.
 
 ## Phase 4 — Skills
 
-**Estimate**: ~2 hours. Order ensures `/sdlc:review-pr` works first.
+**Estimate**: ~2 hours. Order ensures `/claud-it:review-pr` works first.
 
 | Order | Skill | What it does | Spawns |
 |---|---|---|---|
-| 1 | `/sdlc:scope` | View/set current scope, run auto-escalation | (utility) |
-| 2 | `/sdlc:review-pr` | Workhorse — runs every PR | code-reviewer + code-quality-reviewer + security-engineer (parallel) |
-| 3 | `/sdlc:requirements` | PM mode — clarifying Qs, writes PRD | (skill itself) |
-| 4 | `/sdlc:design` | Drafts design + spawns reviewers | staff-engineer + security-engineer (+ principal-ux if UI) |
-| 5 | `/sdlc:plan` | Task breakdown → `plans/` | staff-tpm |
-| 6 | `/sdlc:ship` | Final gate before merge | integ-test-author |
+| 1 | `/claud-it:scope` | View/set current scope, run auto-escalation | (utility) |
+| 2 | `/claud-it:review-pr` | Workhorse — runs every PR | code-reviewer + code-quality-reviewer + security-engineer (parallel) |
+| 3 | `/claud-it:requirements` | PM mode — clarifying Qs, writes PRD | (skill itself) |
+| 4 | `/claud-it:design` | Drafts design + spawns reviewers | staff-engineer + security-engineer (+ principal-ux if UI) |
+| 5 | `/claud-it:plan` | Task breakdown → `plans/` | staff-tpm |
+| 6 | `/claud-it:ship` | Final gate before merge | integ-test-author |
 
 After Phase 4: full SDLC workflow runnable end-to-end.
 
@@ -130,7 +130,7 @@ After Phase 4: full SDLC workflow runnable end-to-end.
 
 Wired in `settings/settings.template.json` to `PreToolUse` on `Bash` matching `git commit` / `git push`.
 
-After Phase 5: you literally cannot commit without going through `/sdlc:review-pr`.
+After Phase 5: you literally cannot commit without going through `/claud-it:review-pr`.
 
 ---
 
@@ -138,9 +138,9 @@ After Phase 5: you literally cannot commit without going through `/sdlc:review-p
 
 **Estimate**: ~1 hour. Real test against real code.
 
-1. `/sdlc:review-pr` on the Cirrus `src/main.ts` voice loop — should catch hardcoded API key, missing error paths, etc.
-2. `/sdlc:requirements` on the reminders feature
-3. `/sdlc:design` on the reminder backend
+1. `/claud-it:review-pr` on the Cirrus `src/main.ts` voice loop — should catch hardcoded API key, missing error paths, etc.
+2. `/claud-it:requirements` on the reminders feature
+3. `/claud-it:design` on the reminder backend
 4. Adjust agent prompts based on what was useful vs noisy
 
 After Phase 6: validated on real code, ready for daily use.

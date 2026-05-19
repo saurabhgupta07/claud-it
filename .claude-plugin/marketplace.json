@@ -6,8 +6,8 @@
   },
   "plugins": [
     {
-      "name": "sdlc",
-      "source": "./plugins/sdlc",
+      "name": "claud-it",
+      "source": "./plugins/claud-it",
       "description": "Methodical SDLC for Claude Code — scope tiers, parallel review panel, durable phase artifacts"
     }
   ]
