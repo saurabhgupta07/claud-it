@@ -102,3 +102,13 @@ Agents output findings; empty list means approved.
 - **SUGGESTION** — optional improvement
 
 Each finding: severity, file:line, what's wrong, recommended fix.
+
+## Code conventions
+
+Universal rules applied to every change. Agents enforce the relevant subset; this section is authoritative on conflict.
+
+- **Error handling is mandatory.** Catch every throw; never silently swallow. Log errors with context (what failed, what input, what state).
+- **Structured logging with leveled output** (debug / info / warn / error). Never `console.log` or `print` for application logs.
+- **No hardcoded values.** Constants, config, env, or secret manager — never inline.
+- **Prefer splitting over not splitting.** If a function does two things, split it. If a file has two responsibilities, split it. Smaller modules with single responsibility win.
+- **Commit after each task in the plan.** Per `/claud-it:plan` task boundaries, not at the end of the feature. Smaller commits = better review surface.
