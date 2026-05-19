@@ -50,7 +50,7 @@ After Phase 1: `/plugin marketplace add` works against this repo. Nothing wired 
 
 ---
 
-## Phase 2 — Constitution (`plugins/claud-it/CLAUDE.md`)
+## Phase 2 — Constitution (`plugins/claud-it/CLAUDE.md`) ✅ 2026-05-18
 
 **Estimate**: 45 min. **Highest-leverage hour** of the project.
 
@@ -177,8 +177,20 @@ After Phase 7: Cirrus-specific rules in place; agents reviewing Cirrus code know
 
 ---
 
+## Open design questions (revisit during Phase 4-5)
+
+- **Auto-push after review+commit.** Currently commits sit local until manually pushed. Options to decide between:
+  - `PostToolUse` hook on `Bash git commit` → auto `git push` to current branch's upstream
+  - `/claud-it:ship` skill includes push as a final step
+  - CLAUDE.md rule: "after every review-passing commit, push to remote"
+  - Combination — push automated for non-main branches; main requires explicit confirmation (matches `pre-push-confirm-main.sh` hook in Phase 5)
+- **Where to write a "I just committed" marker.** `block-without-review.sh` needs to know if `/claud-it:review-pr` was run for the current diff. Marker file at `.claude/last-review`? With hash of the diff so stale markers don't pass?
+- **`/claud-it:scope` skill UX.** Skill must log the chosen tier prominently so user sees what got picked — e.g., `📋 Chosen tier: feature (3 files match, new API endpoint detected). Override: /claud-it:scope <tier>`. Status bar shows the active tier (🧪/🔧/🎯/⚠️) per-project from `.claude/scope` marker.
+
 ## Progress log
 
 | Date | Phase | Notes |
 |---|---|---|
 | 2026-05-18 | 1 | Skeleton committed. README, marketplace.json, plugin.json, stub CLAUDE.md, this plan, gitignore. |
+| 2026-05-18 | 1 | Pushed to github.com/saurabhgupta07/claud-it (public). Plugin renamed sdlc → claud-it. |
+| 2026-05-18 | 2 | Constitution written: goal + operating principle + 6 sections (scope, escalation, override, artifacts, models, findings). 102 lines, 513 words. |
