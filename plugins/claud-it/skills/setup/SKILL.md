@@ -41,18 +41,40 @@ else:
     data = {}
 
 # --- Hooks: append only if path not already present ---
+# Schema: each PreToolUse entry is {matcher, hooks: [{type, command}, ...]}.
 data.setdefault("hooks", {}).setdefault("PreToolUse", [])
-existing_cmds = {h.get("command") for h in data["hooks"]["PreToolUse"] if isinstance(h, dict)}
 
 hooks_to_add = [
     f"{CLAUD_IT_ROOT}/plugins/claud-it/hooks/pre-commit-checks.sh",
     f"{CLAUD_IT_ROOT}/plugins/claud-it/hooks/block-without-review.sh",
     f"{CLAUD_IT_ROOT}/plugins/claud-it/hooks/pre-push-confirm-main.sh",
 ]
+our_cmd_set = set(hooks_to_add)
+
+# Heal entries written by older buggy versions of this skill: those used
+# {matcher, command} at the top level instead of nesting under "hooks".
+# Only rewrite entries whose command matches one of our known hook paths.
+healed = []
+existing_cmds = set()
+for entry in data["hooks"]["PreToolUse"]:
+    if not isinstance(entry, dict):
+        continue
+    legacy_cmd = entry.get("command")
+    if legacy_cmd in our_cmd_set and "hooks" not in entry:
+        entry["hooks"] = [{"type": "command", "command": legacy_cmd}]
+        del entry["command"]
+        healed.append(os.path.basename(legacy_cmd))
+    for h in entry.get("hooks", []) or []:
+        if isinstance(h, dict) and h.get("command"):
+            existing_cmds.add(h["command"])
+
 added_hooks = []
 for cmd in hooks_to_add:
     if cmd not in existing_cmds:
-        data["hooks"]["PreToolUse"].append({"matcher": "Bash", "command": cmd})
+        data["hooks"]["PreToolUse"].append({
+            "matcher": "Bash",
+            "hooks": [{"type": "command", "command": cmd}],
+        })
         added_hooks.append(os.path.basename(cmd))
 
 # --- Status line: only set if absent (never overwrite user's) ---
@@ -75,6 +97,8 @@ if added_hooks:
     print(f"  Hooks added: {', '.join(added_hooks)}")
 else:
     print(f"  Hooks: already present (no changes)")
+if healed:
+    print(f"  Hooks healed (schema fix): {', '.join(healed)}")
 print(f"  Status line: {status_action}")
 print()
 print("Restart Claude Code or run /reload-plugins to activate.")
@@ -101,6 +125,7 @@ If the user already has a custom `statusLine`, the existing one was preserved. S
 This skill is safe to run any number of times:
 
 - Hook entries with the same command path are never duplicated.
+- Entries written by older buggy versions of this skill (top-level `command` instead of nested under `hooks`) are auto-healed in place, but only for the three claud-it hook paths — unrelated entries are not touched.
 - An existing `statusLine` is never overwritten — only set if absent.
 - No other settings keys are touched.
 
