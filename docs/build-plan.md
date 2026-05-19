@@ -103,7 +103,7 @@ After Phase 3: 7 standalone reviewer/author agents, each spawnable.
 
 ---
 
-## Phase 4 — Skills
+## Phase 4 — Skills ✅ 2026-05-19
 
 **Estimate**: ~2 hours. Order ensures `/claud-it:review-pr` works first.
 
@@ -195,3 +195,4 @@ After Phase 7: Cirrus-specific rules in place; agents reviewing Cirrus code know
 | 2026-05-18 | 1 | Pushed to github.com/saurabhgupta07/claud-it (public). Plugin renamed sdlc → claud-it. |
 | 2026-05-18 | 2 | Constitution written: goal + operating principle + 6 sections (scope, escalation, override, artifacts, models, findings). 102 lines, 513 words. |
 | 2026-05-19 | 3 | All 7 agents written: code-quality-reviewer, code-reviewer, security-engineer, staff-engineer, staff-tpm (tightened scope), principal-ux, integ-test-author (two-mode: write tests OR propose framework plan). Two SUGGESTION fixes folded in mid-phase. |
+| 2026-05-19 | 4 | All 6 skills landed: scope (gatekeeper), review-pr (3-reviewer parallel), requirements (PM), design (designer + 2-3 reviewers), plan (breakdown + tpm), ship (final gate + integ tests). Each through code-reviewer + revise + commit + push loop. Skills reference CLAUDE.md instead of duplicating policy. |
