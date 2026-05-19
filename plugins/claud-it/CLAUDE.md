@@ -1,30 +1,27 @@
 # claud-it — Constitution
 
-Goal: write great code for scalable, secure, maintainable systems.
-The rules below are the guardrails — every skill, agent, and hook in
-this plugin defers to them.
+Authoritative rules for every claud-it agent. The dispatcher decides *when* to engage; this document defines *how* to behave once engaged.
 
-> **Operating principle:** Don't freelance. Follow the plan, surface
-> choices, ask before deviating. Architecture discoveries mid-implementation
-> escalate back to design.
+**Don't freelance.** Follow the plan, surface choices, ask before deviating. Escalate architecture discoveries mid-implementation back to design.
 
 ## Scope tiers
 
-Every change has a tier. Before any workflow runs, classify the diff and
-set the tier via `/claud-it:scope`. When unsure between two tiers, pick
-the higher one.
+Every code change has a tier. Classify before any workflow runs. When unsure between two tiers, pick the higher one.
 
 ### experiment
+
 Throwaway code, spike, prototype, exploration.
 
-Workflow: none required. Skills run only when explicitly invoked.
+Workflow: none. Skills run only when explicitly invoked.
 
 ### patch
-Single-concern changes: bug fix, small refactor, dependency bump, copy change. 1–5 files.
 
-Workflow: `/claud-it:review-pr`
+Single-concern change: bug fix, small refactor, dependency bump, copy change. 1–5 files.
+
+Workflow: `/claud-it:review-pr`.
 
 ### feature
+
 New user-visible behavior: new API endpoint, new screen, new flow. 3–15 files, multi-PR.
 
 Workflow:
@@ -35,80 +32,53 @@ Workflow:
 - `/claud-it:ship`
 
 ### system
-Major changes: new subsystem, breaking change. 10+ files.
+
+Major change: new subsystem, breaking change. 10+ files. Auto-escalation triggers below can also force this tier.
 
 Workflow: feature workflow, plus `principal-ux` joins `/claud-it:design` when UI is involved.
 
-(Auto-escalation triggers in the next section can also force this tier — see those rules.)
-
 ## Auto-escalation triggers
 
-If the diff touches any of these, the tier is at least `feature`. If it
-touches two or more, the tier is `system`. These rules override the
-file-count heuristics in the previous section.
+If the diff touches any of these, tier is at least `feature`. Two or more → `system`. These rules override file-count heuristics.
 
-- **Authentication / authorization** — login flows, session handling, token validation, JWT signing
-- **Secrets, tokens, API keys** — storage, retrieval, rotation, signing logic
-- **Database schema migrations** — DDL, table alters, index changes
-- **IAM policies** — role definitions, permission grants, infra access scoping
-- **Billing / payments** — pricing, charge logic, refund flows, invoicing
-- **Infrastructure** — CDK/Terraform/CloudFormation stacks, deployment configs, networking
+- Authentication / authorization
+- Secrets, tokens, API keys
+- Database schema migrations
+- IAM policies
+- Billing / payments
+- Infrastructure (CDK, Terraform, CloudFormation, networking)
 
-Never silently work below the required tier — if a trigger fires, escalate
-immediately and log the reason.
+Never work below the required tier silently. Escalate and log the reason.
 
 ## Override
 
-The user can override the auto-set tier any time via `/claud-it:scope <tier>`.
-Respect the override even if it's below what auto-escalation requires —
-but log a loud warning explaining what's being bypassed.
+User can override the auto-set tier via `/claud-it:scope <tier>`. Respect it even when below what auto-escalation would require — but log a loud warning naming what's being bypassed.
 
 ## Artifacts
 
-Each phase writes an artifact to the consumer project (not this plugin's repo).
+Each phase writes to the *consumer* project, not this plugin.
 
-### Committed
-- `docs/prd/<feature>.md` — requirements + scope (from `/claud-it:requirements`)
-- `docs/design/<feature>.md` — architecture + data model + alternatives (from `/claud-it:design`)
-- `docs/adr/NNNN-<title>.md` — single architecture decision, immutable, numbered
-- `docs/ux/<feature>.md` — flows + screens + copy (from principal-ux, UI only)
+**Committed:**
+- `docs/prd/<feature>.md` — requirements + scope
+- `docs/design/<feature>.md` — architecture, data model, alternatives
+- `docs/adr/NNNN-<title>.md` — single architecture decision, immutable
+- `docs/ux/<feature>.md` — flows, screens, copy (UI only)
 
-### Gitignored
-- `plans/<feature>.md` — task breakdown (from `/claud-it:plan`)
+**Gitignored:**
+- `plans/<feature>.md` — task breakdown
 - `.claude/scope` — current tier marker
 - `.claude/last-review` — review marker keyed by diff hash
 
-## Model assignment
-
-| Agent | Model |
-|---|---|
-| `staff-engineer` | Opus |
-| `security-engineer` | Opus |
-| `principal-ux` | Opus |
-| `staff-tpm` | Sonnet |
-| `code-reviewer` | Sonnet |
-| `code-quality-reviewer` | Sonnet |
-| `integ-test-author` | Sonnet |
-
-Opus for high-stakes ambiguous judgment (architecture, security, UX).
-Sonnet for structured technical work at PR frequency.
-
 ## Findings
 
-Agents output findings; empty list means approved.
+Output as a list. Empty list = approved. Each finding: `severity`, `file:line`, diagnosis, recommended fix.
 
-- **BLOCKER** — must fix (broken, unsafe, or violates constitution)
-- **WARNING** — should fix (works but suboptimal)
-- **SUGGESTION** — optional improvement
-
-Each finding: severity, file:line, what's wrong, recommended fix.
+Severities: **BLOCKER** (must fix — broken, unsafe, or violates constitution), **WARNING** (should fix unless explicitly accepted with reasoning), **SUGGESTION** (optional).
 
 ## Code conventions
 
-Universal rules applied to every change. Agents enforce the relevant subset; this section is authoritative on conflict.
-
-- **Error handling is mandatory.** Catch every throw; never silently swallow. Log errors with context (what failed, what input, what state).
-- **Structured logging with leveled output** (debug / info / warn / error). Never `console.log` or `print` for application logs.
-- **No hardcoded values.** Constants, config, env, or secret manager — never inline.
-- **Prefer splitting over not splitting.** If a function does two things, split it. If a file has two responsibilities, split it. Smaller modules with single responsibility win.
-- **Commit after each task in the plan.** Per `/claud-it:plan` task boundaries, not at the end of the feature. Smaller commits = better review surface.
+- Handle every error explicitly. Catch every throw; log with context (what failed, what input, what state).
+- Use structured leveled logging (debug / info / warn / error). No `console.log` or `print` for app logs.
+- Never hardcode. Use constants, config, env, or a secret manager.
+- Split aggressively. Single responsibility per function and file.
+- Commit per plan task, not per feature. Smaller commits = better review surface.
