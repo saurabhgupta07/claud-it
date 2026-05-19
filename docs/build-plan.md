@@ -69,7 +69,7 @@ After Phase 2: every downstream skill/agent has a constitution to reference.
 
 ---
 
-## Phase 3 — Agent fleet
+## Phase 3 — Agent fleet ✅ 2026-05-19
 
 **Estimate**: ~2 hours. Order matters — first three unblock `/claud-it:review-pr`.
 
@@ -194,3 +194,4 @@ After Phase 7: Cirrus-specific rules in place; agents reviewing Cirrus code know
 | 2026-05-18 | 1 | Skeleton committed. README, marketplace.json, plugin.json, stub CLAUDE.md, this plan, gitignore. |
 | 2026-05-18 | 1 | Pushed to github.com/saurabhgupta07/claud-it (public). Plugin renamed sdlc → claud-it. |
 | 2026-05-18 | 2 | Constitution written: goal + operating principle + 6 sections (scope, escalation, override, artifacts, models, findings). 102 lines, 513 words. |
+| 2026-05-19 | 3 | All 7 agents written: code-quality-reviewer, code-reviewer, security-engineer, staff-engineer, staff-tpm (tightened scope), principal-ux, integ-test-author (two-mode: write tests OR propose framework plan). Two SUGGESTION fixes folded in mid-phase. |
