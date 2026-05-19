@@ -43,10 +43,6 @@
 | `code-quality-reviewer` | Sonnet | DRY, naming, maintainability, type tightness |
 | `integ-test-author` | Sonnet | Generates integration tests for new PRs |
 
-## Status
-
-**v0.0.1 — Phase 1 (skeleton).** Full build plan in [`docs/build-plan.md`](./docs/build-plan.md).
-
 ## Project structure (target — v0.0.1 has skeleton only)
 
 ```
@@ -59,15 +55,15 @@ claud-it/
 └── plugins/
     └── claud-it/
         ├── plugin.json
-        ├── CLAUDE.md                   (stub today, full in Phase 2)
-        ├── skills/                     (Phase 4)
+        ├── CLAUDE.md                   
+        ├── skills/                     
         │   ├── scope/
         │   ├── requirements/
         │   ├── design/
         │   ├── plan/
         │   ├── review-pr/
         │   └── ship/
-        ├── agents/                     (Phase 3)
+        ├── agents/                     
         │   ├── staff-engineer.md
         │   ├── security-engineer.md
         │   ├── principal-ux.md
@@ -75,7 +71,7 @@ claud-it/
         │   ├── code-reviewer.md
         │   ├── code-quality-reviewer.md
         │   └── integ-test-author.md
-        └── hooks/                      (Phase 5)
+        └── hooks/                      
             ├── pre-commit-checks.sh
             ├── pre-push-confirm-main.sh
             └── block-without-review.sh
