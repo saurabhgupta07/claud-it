@@ -21,7 +21,53 @@ ls -d ~/.claude/plugins/cache/claud-it/claud-it/*/ 2>/dev/null | sort -V | tail 
 
 This returns the latest installed version directory. Strip the trailing slash and use that path as `CLAUD_IT_ROOT`. If empty, stop and tell the user: "claud-it plugin folder not found. Verify with `/plugin install claud-it@claud-it --scope user`."
 
-## 2. Merge into ~/.claude/settings.json
+## 2. Create stable hook wrappers
+
+The actual hook scripts live inside the versioned plugin cache directory, which changes on every `/plugin update`. To avoid `settings.json` going stale after each update, create **stable wrapper scripts** at a version-independent path. Each wrapper self-resolves to the currently installed version at call time.
+
+Run:
+
+```bash
+python3 <<PYEOF
+import os, stat
+from pathlib import Path
+
+WRAPPER_DIR = Path.home() / ".claude" / "claud-it" / "hooks"
+WRAPPER_DIR.mkdir(parents=True, exist_ok=True)
+
+WRAPPER_BODY = '''\
+#!/bin/bash
+# Stable wrapper — resolves to the currently installed claud-it version.
+# settings.json registers this path; it never needs updating after /plugin update.
+ROOT=$(ls -d "$HOME/.claude/plugins/cache/claud-it/claud-it/"*/ 2>/dev/null | sort -V | tail -1)
+ROOT="${ROOT%/}"
+if [ -z "$ROOT" ]; then
+  printf \'{"continue":true}\'
+  exit 0
+fi
+exec "$ROOT/hooks/$(basename "$0")" "$@"
+'''
+
+HOOK_NAMES = [
+    "pre-commit-checks.sh",
+    "block-without-review.sh",
+    "pre-push-confirm-main.sh",
+]
+
+created = []
+for name in HOOK_NAMES:
+    p = WRAPPER_DIR / name
+    p.write_text(WRAPPER_BODY)
+    p.chmod(p.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+    created.append(str(p))
+
+print("Wrappers written:")
+for c in created:
+    print(f"  {c}")
+PYEOF
+```
+
+## 3. Merge into ~/.claude/settings.json
 
 Use Python (more portable than jq for nested merges). Run:
 
@@ -31,6 +77,7 @@ import json, os, sys
 from pathlib import Path
 
 CLAUD_IT_ROOT = "<resolved path from step 1>"
+WRAPPER_DIR = str(Path.home() / ".claude" / "claud-it" / "hooks")
 settings_path = Path.home() / ".claude" / "settings.json"
 
 # Load or initialize
@@ -40,7 +87,7 @@ else:
     settings_path.parent.mkdir(parents=True, exist_ok=True)
     data = {}
 
-# --- Hooks: append only if path not already present ---
+# --- Hooks: register stable wrappers, not versioned paths ---
 # Schema: each PreToolUse entry is {matcher, hooks: [{type, command}, ...]}.
 data.setdefault("hooks", {}).setdefault("PreToolUse", [])
 
@@ -50,37 +97,40 @@ HOOK_NAMES = [
     "pre-push-confirm-main.sh",
 ]
 
-hooks_to_add = [f"{CLAUD_IT_ROOT}/hooks/{name}" for name in HOOK_NAMES]
+# Stable wrapper paths — never change across plugin updates
+hooks_to_add = [f"{WRAPPER_DIR}/{name}" for name in HOOK_NAMES]
 our_cmd_set = set(hooks_to_add)
 
-# Buggy paths written by an older version of this skill that mistakenly
-# inserted "plugins/claud-it/" between CLAUD_IT_ROOT and "hooks/".
-buggy_to_correct = {
-    f"{CLAUD_IT_ROOT}/plugins/claud-it/hooks/{name}": f"{CLAUD_IT_ROOT}/hooks/{name}"
-    for name in HOOK_NAMES
-}
+# Paths written by older buggy versions of this skill (versioned or with
+# extra "plugins/claud-it/" segment). Map them to the correct stable path.
+legacy_patterns = []
+for cache_entry in Path.home().glob(".claude/plugins/cache/claud-it/claud-it/*/"):
+    for name in HOOK_NAMES:
+        versioned = str(cache_entry / "hooks" / name)
+        buggy = str(cache_entry / "plugins" / "claud-it" / "hooks" / name)
+        correct = f"{WRAPPER_DIR}/{name}"
+        legacy_patterns.append((versioned, correct))
+        legacy_patterns.append((buggy, correct))
+old_to_new = dict(legacy_patterns)
 
-# Heal entries written by older buggy versions of this skill:
-#   Heal 1 — legacy schema: top-level {matcher, command} instead of nested
-#             under "hooks". Only touch entries whose command is one of ours.
-#   Heal 2 — bad path: extra "plugins/claud-it/" segment in the middle.
+# Heal legacy entries, collect existing stable-path commands
 healed = []
 existing_cmds = set()
 for entry in data["hooks"]["PreToolUse"]:
     if not isinstance(entry, dict):
         continue
-    # Heal 1: schema fix
+    # Heal: legacy schema — top-level command instead of nested under hooks
     legacy_cmd = entry.get("command")
     if legacy_cmd in our_cmd_set and "hooks" not in entry:
         entry["hooks"] = [{"type": "command", "command": legacy_cmd}]
         del entry["command"]
         healed.append(os.path.basename(legacy_cmd) + " (schema fix)")
-    # Heal 2: path fix
+    # Heal: versioned or buggy-path entries → stable wrapper path
     for h in entry.get("hooks", []) or []:
-        if isinstance(h, dict) and h.get("command") in buggy_to_correct:
-            correct = buggy_to_correct[h["command"]]
+        if isinstance(h, dict) and h.get("command") in old_to_new:
+            correct = old_to_new[h["command"]]
             h["command"] = correct
-            healed.append(os.path.basename(correct) + " (path fix)")
+            healed.append(os.path.basename(correct) + " (path → stable wrapper)")
         if isinstance(h, dict) and h.get("command"):
             existing_cmds.add(h["command"])
 
@@ -121,9 +171,9 @@ print("Restart Claude Code or run /reload-plugins to activate.")
 PYEOF
 ```
 
-## 3. Confirm
+## 4. Confirm
 
-If the Python block printed successfully, the merge is done. Tell the user to run `/reload-plugins` or restart Claude Code to pick up the new hooks.
+If both Python blocks printed successfully, the merge is done. Tell the user to run `/reload-plugins` or restart Claude Code to pick up the new hooks.
 
 If the user already has a custom `statusLine`, the existing one was preserved. Show them the claud-it config they can manually substitute if they want the scope display:
 
@@ -140,10 +190,12 @@ If the user already has a custom `statusLine`, the existing one was preserved. S
 
 This skill is safe to run any number of times:
 
-- Hook entries with the same command path are never duplicated.
+- Stable wrapper scripts are overwritten with identical content — no harm.
+- Hook entries pointing to the stable wrappers are never duplicated.
 - Entries written by older versions of this skill are auto-healed in place:
   - *Schema bug* — top-level `command` instead of nested under `hooks` — fixed by restructuring the entry.
-  - *Path bug* — extra `plugins/claud-it/` segment between `CLAUD_IT_ROOT` and `hooks/` — fixed by rewriting the command to the correct path.
+  - *Versioned-path bug* — pointing directly at a versioned cache dir (breaks on `/plugin update`) — rewritten to the stable wrapper path.
+  - *Double-segment bug* — extra `plugins/claud-it/` between `CLAUD_IT_ROOT` and `hooks/` — also rewritten to stable wrapper.
   - Only the three claud-it hook paths are touched; unrelated entries are never modified.
 - An existing `statusLine` is never overwritten — only set if absent.
 - No other settings keys are touched.
