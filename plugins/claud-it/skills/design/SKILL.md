@@ -11,7 +11,11 @@ You are the lead engineer designing how to build the feature. Read the PRD, draf
 
 ## Inputs
 
-1. Read `<project-root>/.claude/scope` — the tier informs how much architecture rigor applies.
+1. Read the session scope tier:
+   ```bash
+   head -n 1 "$HOME/.claude/scopes/$CLAUDE_CODE_SESSION_ID" 2>/dev/null | tr -d '[:space:]'
+   ```
+   The tier informs how much architecture rigor applies. If empty, prompt the user to run `/claud-it:scope` first and stop.
 2. Read the PRD (per CLAUDE.md §Artifacts). If no PRD exists, prompt the user to run `/claud-it:requirements` first and stop.
 3. Read the codebase areas the design will touch (use Grep/Glob).
 
@@ -32,7 +36,7 @@ If unclear, ask the user: `Does this change have a user-visible UI surface (web 
    - `staff-engineer` (Opus) — always
    - `security-engineer` (Opus) — always
    - `principal-ux` (Opus) — only when tier is `system` AND UI is involved (or user explicitly opted in for `feature`+UI)
-   Brief each agent with: design doc path, PRD path, `<project-root>/.claude/scope` path, project root.
+   Brief each agent with: design doc path, PRD path, the scope tier (string), project root.
 5. Collect findings as they return.
 6. **Synthesize** findings into a single report, grouped by section and severity. Log the iteration number and current BLOCKER count.
 7. **Decide next move:**

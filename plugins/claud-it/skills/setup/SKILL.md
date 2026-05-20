@@ -181,7 +181,7 @@ If the user already has a custom `statusLine`, the existing one was preserved. S
 {
   "statusLine": {
     "type": "command",
-    "command": "scope=$(cat .claude/scope 2>/dev/null || echo 'unset — run /claud-it:scope'); echo \"🎯 scope: $scope\""
+    "command": "input=$(cat); session_id=$(echo \"$input\" | jq -r '.session_id'); scope_file=\"$HOME/.claude/scopes/$session_id\"; if [ -f \"$scope_file\" ]; then tier=$(head -n 1 \"$scope_file\" | tr -d '[:space:]'); else tier='∅ no scope'; fi; echo \"🎯 $tier\""
   }
 }
 ```

@@ -1,6 +1,6 @@
 ---
 name: scope
-description: Classify the current diff into a scope tier and write it to .claude/scope. Tier definitions, auto-escalation rules, and override semantics live in CLAUDE.md. Run before any /claud-it workflow. Accepts optional <tier> arg to manually override.
+description: Classify the current diff into a scope tier and write it to ~/.claude/scopes/$CLAUDE_CODE_SESSION_ID. Tier definitions, auto-escalation rules, and override semantics live in CLAUDE.md. Run before any /claud-it workflow. Accepts optional <tier> arg to manually override.
 ---
 
 # /claud-it:scope

@@ -11,14 +11,18 @@ The workhorse skill. Runs three reviewer agents in parallel against the current 
 
 ## Steps
 
-1. **Check scope.** Read `<project-root>/.claude/scope`. If absent, prompt the user to run `/claud-it:scope` first and stop.
+1. **Check scope.** Read the session scope tier:
+   ```bash
+   head -n 1 "$HOME/.claude/scopes/$CLAUDE_CODE_SESSION_ID" 2>/dev/null | tr -d '[:space:]'
+   ```
+   If empty, prompt the user to run `/claud-it:scope` first and stop.
 2. **Get the diff.** Run `git diff HEAD` and `git diff --staged`. If the working tree is clean, print "No changes to review" and stop.
 3. **Compute diff hash.** SHA256 over the output of `git diff HEAD` (covers both staged and unstaged), LF-normalized. This must be deterministic so the pre-commit hook can verify the marker is current.
 4. **Spawn three reviewers in parallel** — single message, three Agent tool calls (parallel is required; sequential breaks the "independent perspectives" principle):
    - `code-reviewer` (Sonnet) — correctness
    - `code-quality-reviewer` (Sonnet) — maintainability
    - `security-engineer` (Opus) — security
-   Brief each agent with: the diff (or instructions to run `git diff HEAD`), the current scope tier from `.claude/scope`, and the project root path so they can read CLAUDE.md.
+   Brief each agent with: the diff (or instructions to run `git diff HEAD`), the scope tier (string, read in step 1), and the project root path so they can read CLAUDE.md.
 5. **Collect findings** as they return.
 6. **Synthesize** into a single report:
    - Group by file, then by severity (BLOCKERs first)
@@ -63,5 +67,5 @@ The pre-commit hook reads:
 
 - Don't run reviewers sequentially.
 - Don't suppress an agent's finding to keep the report tidy — surface everything.
-- Don't decide gating yourself — read tier from `.claude/scope`, apply CLAUDE.md rules.
+- Don't decide gating yourself — use the tier read in step 1, apply CLAUDE.md rules.
 - Don't write the review marker if you skipped any reviewer.

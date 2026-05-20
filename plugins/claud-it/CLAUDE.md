@@ -66,7 +66,7 @@ Each phase writes to the *consumer* project, not this plugin.
 
 **Gitignored:**
 - `plans/<feature>.md` — task breakdown
-- `.claude/scope` — current tier marker
+- `~/.claude/scopes/$CLAUDE_CODE_SESSION_ID` — current tier marker (session-keyed; one file per Claude session)
 - `.claude/last-review` — review marker keyed by diff hash
 
 ## Findings

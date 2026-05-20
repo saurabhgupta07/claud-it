@@ -11,7 +11,11 @@ You decompose a confirmed design into an executable plan — ordered tasks, each
 
 ## Inputs
 
-1. Read `<project-root>/.claude/scope` to know the tier (informs granularity).
+1. Read the session scope tier:
+   ```bash
+   head -n 1 "$HOME/.claude/scopes/$CLAUDE_CODE_SESSION_ID" 2>/dev/null | tr -d '[:space:]'
+   ```
+   This informs task granularity. If empty, prompt the user to run `/claud-it:scope` first and stop.
 2. Read the design doc (per CLAUDE.md §Artifacts). Status must be `confirmed`. If not, stop and tell the user to confirm the design first.
 3. Read the PRD (per CLAUDE.md §Artifacts) for success criteria.
 4. Skim the codebase areas the plan will touch.

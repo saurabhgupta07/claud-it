@@ -5,8 +5,8 @@
 # Wired via PreToolUse on Bash. Only acts when the command is `git commit`.
 #
 # Reads:
-#   <project-root>/.claude/scope        — current tier
-#   <project-root>/.claude/last-review  — diff hash + blockers count
+#   ~/.claude/scopes/$CLAUDE_CODE_SESSION_ID  — current tier (session-keyed)
+#   <project-root>/.claude/last-review        — diff hash + blockers count
 #
 # Exit codes:
 #   0  - allow commit
@@ -38,13 +38,13 @@ PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || {
 }
 cd "$PROJECT_ROOT"
 
-SCOPE_FILE="$PROJECT_ROOT/.claude/scope"
+SCOPE_FILE="$HOME/.claude/scopes/$CLAUDE_CODE_SESSION_ID"
 REVIEW_FILE="$PROJECT_ROOT/.claude/last-review"
 
 # ---------- Scope check ----------
 
 if [[ ! -f "$SCOPE_FILE" ]]; then
-  echo "BLOCKED: no scope set." >&2
+  echo "BLOCKED: no scope set for this session." >&2
   echo "Run /claud-it:scope to classify this change before committing." >&2
   echo "(Emergency bypass: CLAUD_IT_BYPASS=1)" >&2
   exit 1

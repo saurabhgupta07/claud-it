@@ -11,7 +11,11 @@ You are the final gate. Verify all phase artifacts are complete and confirmed, t
 
 ## Inputs
 
-1. Read `<project-root>/.claude/scope` — must be `feature` or `system`. If `patch` or `experiment`, this skill is not the right one — explain and stop.
+1. Read the session scope tier:
+   ```bash
+   head -n 1 "$HOME/.claude/scopes/$CLAUDE_CODE_SESSION_ID" 2>/dev/null | tr -d '[:space:]'
+   ```
+   Must be `feature` or `system`. If `patch` or `experiment`, this skill is not the right one — explain and stop. If empty, prompt the user to run `/claud-it:scope` first and stop.
 2. Read the PRD, design doc, and plan (per CLAUDE.md §Artifacts).
 3. Read `<project-root>/.claude/last-review` if it exists.
 
