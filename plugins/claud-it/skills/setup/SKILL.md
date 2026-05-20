@@ -148,7 +148,7 @@ status_action = "set"
 if "statusLine" not in data:
     data["statusLine"] = {
         "type": "command",
-        "command": "scope=$(cat .claude/scope 2>/dev/null || echo 'unset — run /claud-it:scope'); echo \"🎯 scope: $scope\""
+        "command": "input=$(cat); project_dir=$(echo \"$input\" | jq -r '.workspace.project_dir // .workspace.current_dir'); scope_file=\"$project_dir/.claude/scope\"; if [ -f \"$scope_file\" ]; then scope=$(head -n 1 \"$scope_file\" | tr -d '[:space:]'); else scope='∅ no scope'; fi; echo \"🎯 $scope\""
     }
 else:
     status_action = "preserved existing"
