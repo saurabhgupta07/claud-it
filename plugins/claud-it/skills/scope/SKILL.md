@@ -21,9 +21,15 @@ Classify the current change and write the scope tier marker. Other workflows rea
    - 1 trigger → floor is `feature`
    - 2+ triggers → floor is `system`
 5. **Final tier = max(heuristic tier, escalation floor).** When unsure between two tiers, pick the higher (per CLAUDE.md).
-6. Write the tier to both locations (format below):
-   - `~/.claude/scopes/$CLAUDE_CODE_SESSION_ID` — session-keyed; this is what the status bar reads. Survives across any number of concurrent Claude sessions in any directory.
-   - `<project-root>/.claude/scope` — project-keyed; used by hooks, PR review, and git history.
+6. Write the tier using these exact shell commands (replace `<tier>` with the computed value):
+   ```bash
+   # Session-keyed — what the status bar reads
+   mkdir -p "$HOME/.claude/scopes"
+   printf '%s\n' "<tier>" > "$HOME/.claude/scopes/$CLAUDE_CODE_SESSION_ID"
+   # Project-keyed — for hooks, PR review, git history
+   mkdir -p ".claude"
+   printf '%s\n# set %s by claude\n' "<tier>" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > ".claude/scope"
+   ```
 7. Log loudly: `📋 Tier: <tier>. Reason: <one-line>. Override with /claud-it:scope <tier>.`
 
 ### Experiment signals
@@ -39,7 +45,13 @@ Otherwise prefer patch/feature/system.
 
 1. Validate the tier name against CLAUDE.md's defined tiers. If invalid, print valid options and stop.
 2. **Compute what auto-escalation would require** for the current diff (per CLAUDE.md §Auto-escalation) so step 4 can name what's being bypassed.
-3. Write the tier to both `~/.claude/scopes/$CLAUDE_CODE_SESSION_ID` and `<project-root>/.claude/scope`.
+3. Write the tier using these exact shell commands:
+   ```bash
+   mkdir -p "$HOME/.claude/scopes"
+   printf '%s\n' "<tier>" > "$HOME/.claude/scopes/$CLAUDE_CODE_SESSION_ID"
+   mkdir -p ".claude"
+   printf '%s\n# set %s by claude (user override)\n' "<tier>" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > ".claude/scope"
+   ```
 4. If the override is below the auto-escalation requirement, log:
    `⚠️ Override to <tier>. Diff touches <list-of-triggers> — auto-escalation requires <required-tier>. Proceeding with override.`
 5. Otherwise log: `📋 Tier set to <tier> (user override).`
@@ -71,5 +83,5 @@ Consumers read line 1 only.
 - Don't classify silently — always log the chosen tier and reason.
 - Don't classify without reading the diff (unless user passed a tier explicitly).
 - Don't refuse user overrides — warn and proceed.
-- Don't modify anything outside `.claude/scope`.
+- Don't modify anything outside `~/.claude/scopes/$CLAUDE_CODE_SESSION_ID` and `.claude/scope`.
 - If `git diff` fails (not a git repo), surface clearly and stop.
