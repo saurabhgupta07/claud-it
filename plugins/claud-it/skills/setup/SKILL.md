@@ -148,7 +148,7 @@ status_action = "set"
 if "statusLine" not in data:
     data["statusLine"] = {
         "type": "command",
-        "command": "input=$(cat); project_dir=$(echo \"$input\" | jq -r '.workspace.project_dir // .workspace.current_dir'); scope_file=\"$project_dir/.claude/scope\"; if [ -f \"$scope_file\" ]; then scope=$(head -n 1 \"$scope_file\" | tr -d '[:space:]'); else scope='∅ no scope'; fi; echo \"🎯 $scope\""
+        "command": "input=$(cat); session_id=$(echo \"$input\" | jq -r '.session_id'); scope_file=\"$HOME/.claude/scopes/$session_id\"; if [ -f \"$scope_file\" ]; then tier=$(head -n 1 \"$scope_file\" | tr -d '[:space:]'); else tier='∅ no scope'; fi; echo \"🎯 $tier\""
     }
 else:
     status_action = "preserved existing"

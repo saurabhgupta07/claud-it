@@ -21,7 +21,9 @@ Classify the current change and write the scope tier marker. Other workflows rea
    - 1 trigger → floor is `feature`
    - 2+ triggers → floor is `system`
 5. **Final tier = max(heuristic tier, escalation floor).** When unsure between two tiers, pick the higher (per CLAUDE.md).
-6. Write the tier to `<project-root>/.claude/scope` (format below).
+6. Write the tier to both locations (format below):
+   - `~/.claude/scopes/$CLAUDE_CODE_SESSION_ID` — session-keyed; this is what the status bar reads. Survives across any number of concurrent Claude sessions in any directory.
+   - `<project-root>/.claude/scope` — project-keyed; used by hooks, PR review, and git history.
 7. Log loudly: `📋 Tier: <tier>. Reason: <one-line>. Override with /claud-it:scope <tier>.`
 
 ### Experiment signals
@@ -37,7 +39,7 @@ Otherwise prefer patch/feature/system.
 
 1. Validate the tier name against CLAUDE.md's defined tiers. If invalid, print valid options and stop.
 2. **Compute what auto-escalation would require** for the current diff (per CLAUDE.md §Auto-escalation) so step 4 can name what's being bypassed.
-3. Write the tier to `<project-root>/.claude/scope`.
+3. Write the tier to both `~/.claude/scopes/$CLAUDE_CODE_SESSION_ID` and `<project-root>/.claude/scope`.
 4. If the override is below the auto-escalation requirement, log:
    `⚠️ Override to <tier>. Diff touches <list-of-triggers> — auto-escalation requires <required-tier>. Proceeding with override.`
 5. Otherwise log: `📋 Tier set to <tier> (user override).`
@@ -60,8 +62,8 @@ Consumers read line 1 only.
 
 ## Behavior
 
-- Create `.claude/` directory if it doesn't exist.
-- Overwrite `.claude/scope` if it already exists — this file holds the *current* tier; past tiers live in git history if needed.
+- Create `~/.claude/scopes/` and `<project-root>/.claude/` directories if they don't exist.
+- Overwrite both scope files if they already exist — they hold the *current* tier; past tiers live in git history if needed.
 - Exit non-zero on invalid tier or `git diff` failure; zero otherwise.
 
 ## What NOT to do
