@@ -44,27 +44,43 @@ else:
 # Schema: each PreToolUse entry is {matcher, hooks: [{type, command}, ...]}.
 data.setdefault("hooks", {}).setdefault("PreToolUse", [])
 
-hooks_to_add = [
-    f"{CLAUD_IT_ROOT}/plugins/claud-it/hooks/pre-commit-checks.sh",
-    f"{CLAUD_IT_ROOT}/plugins/claud-it/hooks/block-without-review.sh",
-    f"{CLAUD_IT_ROOT}/plugins/claud-it/hooks/pre-push-confirm-main.sh",
+HOOK_NAMES = [
+    "pre-commit-checks.sh",
+    "block-without-review.sh",
+    "pre-push-confirm-main.sh",
 ]
+
+hooks_to_add = [f"{CLAUD_IT_ROOT}/hooks/{name}" for name in HOOK_NAMES]
 our_cmd_set = set(hooks_to_add)
 
-# Heal entries written by older buggy versions of this skill: those used
-# {matcher, command} at the top level instead of nesting under "hooks".
-# Only rewrite entries whose command matches one of our known hook paths.
+# Buggy paths written by an older version of this skill that mistakenly
+# inserted "plugins/claud-it/" between CLAUD_IT_ROOT and "hooks/".
+buggy_to_correct = {
+    f"{CLAUD_IT_ROOT}/plugins/claud-it/hooks/{name}": f"{CLAUD_IT_ROOT}/hooks/{name}"
+    for name in HOOK_NAMES
+}
+
+# Heal entries written by older buggy versions of this skill:
+#   Heal 1 — legacy schema: top-level {matcher, command} instead of nested
+#             under "hooks". Only touch entries whose command is one of ours.
+#   Heal 2 — bad path: extra "plugins/claud-it/" segment in the middle.
 healed = []
 existing_cmds = set()
 for entry in data["hooks"]["PreToolUse"]:
     if not isinstance(entry, dict):
         continue
+    # Heal 1: schema fix
     legacy_cmd = entry.get("command")
     if legacy_cmd in our_cmd_set and "hooks" not in entry:
         entry["hooks"] = [{"type": "command", "command": legacy_cmd}]
         del entry["command"]
-        healed.append(os.path.basename(legacy_cmd))
+        healed.append(os.path.basename(legacy_cmd) + " (schema fix)")
+    # Heal 2: path fix
     for h in entry.get("hooks", []) or []:
+        if isinstance(h, dict) and h.get("command") in buggy_to_correct:
+            correct = buggy_to_correct[h["command"]]
+            h["command"] = correct
+            healed.append(os.path.basename(correct) + " (path fix)")
         if isinstance(h, dict) and h.get("command"):
             existing_cmds.add(h["command"])
 
@@ -125,7 +141,10 @@ If the user already has a custom `statusLine`, the existing one was preserved. S
 This skill is safe to run any number of times:
 
 - Hook entries with the same command path are never duplicated.
-- Entries written by older buggy versions of this skill (top-level `command` instead of nested under `hooks`) are auto-healed in place, but only for the three claud-it hook paths — unrelated entries are not touched.
+- Entries written by older versions of this skill are auto-healed in place:
+  - *Schema bug* — top-level `command` instead of nested under `hooks` — fixed by restructuring the entry.
+  - *Path bug* — extra `plugins/claud-it/` segment between `CLAUD_IT_ROOT` and `hooks/` — fixed by rewriting the command to the correct path.
+  - Only the three claud-it hook paths are touched; unrelated entries are never modified.
 - An existing `statusLine` is never overwritten — only set if absent.
 - No other settings keys are touched.
 
